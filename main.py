@@ -40,11 +40,6 @@ def hide_columns(file_name):
     df.drop(df.columns[columns_to_delete], axis=1, inplace=True)
     writer = pd.ExcelWriter(file_name)
     df.to_excel(writer, 'Sheet1')
-    # wb = load_workbook(file_name)
-    # ws = wb.active
-    # for col in map(get_col_letter, columns_to_delete):
-    #     ws.column_dimensions[col].hidden = True
-    # wb.save(file_name)
     print("Columns hidden")
 
 
