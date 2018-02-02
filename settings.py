@@ -22,5 +22,8 @@ CHILDREN = [
     }
 ]
 
+# True\False
+SEND_TO_PARENTS = True
+
 MESSAGE_TEMPLATE = 'Здравствуйте!\nПрикрепляю отчёт за неделю\n' \
                    'С уважением, {}'.format(CURATOR_NAME)

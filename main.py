@@ -9,7 +9,7 @@ from urllib.request import urlretrieve
 
 import pandas as pd
 
-from settings import CHILDREN, MESSAGE_TEMPLATE, CURATOR_EMAIL, CURATOR_PASS, START_DATE, END_DATE
+from settings import CHILDREN, MESSAGE_TEMPLATE, CURATOR_EMAIL, CURATOR_PASS, START_DATE, END_DATE, SEND_TO_PARENTS
 
 
 def download_file(start_date, end_date, user_id, file_name):
@@ -76,8 +76,6 @@ def send_email(filename, email):
 
 
 if __name__ == "__main__":
-    print("Put dates like: 2018-01-18")
-
     for child in CHILDREN:
         file_name = "{}-{}-{}.xlsx".format(
             START_DATE.replace('-', ''),
@@ -88,5 +86,7 @@ if __name__ == "__main__":
         download_file(START_DATE, END_DATE, child['user_id'], file_name)
 
         hide_columns(file_name)
-        send_email(file_name, child['parent_email'])
+
+        if SEND_TO_PARENTS:
+            send_email(file_name, child['parent_email'])
 
