@@ -9,16 +9,17 @@ from urllib.request import urlretrieve
 
 import pandas as pd
 
-from settings import CHILDREN, MESSAGE_TEMPLATE, CURATOR_EMAIL, CURATOR_PASS, START_DATE, END_DATE, SEND_TO_PARENTS
+from settings import CHILDREN, MESSAGE_TEMPLATE, MESSAGE_SUBJECT,\
+    CURATOR_EMAIL, CURATOR_PASS, START_DATE, END_DATE, SEND_TO_PARENTS
 
 
 def download_file(start_date, end_date, user_id, file_name):
 
     if file_name in os.listdir("."):
         print("File exists")
-        return
+        return False
 
-    print("Downloading...")
+    print("\nDownloading {} ...".format(file_name))
     request_string = 'https://metabase.foxford.ru/public/question/782ef688-5f95-41ba-8cab-c285650cca86.xlsx?parameters='
     params = """
         [{"type":"date/single","target":["variable",["template-tag","startDate"]],"value":"%s"},
@@ -30,6 +31,7 @@ def download_file(start_date, end_date, user_id, file_name):
     url = request_string + quote(params)
     urlretrieve(url, file_name)
     print("File downloaded")
+    return True
 
 
 def hide_columns(file_name):
@@ -39,7 +41,8 @@ def hide_columns(file_name):
     df = pd.read_excel(file_name)
     df.drop(df.columns[columns_to_delete], axis=1, inplace=True)
     writer = pd.ExcelWriter(file_name)
-    df.to_excel(writer, 'Sheet1')
+    df.to_excel(writer)
+    writer.save()
     print("Columns hidden")
 
 
@@ -56,7 +59,7 @@ def send_email(filename, email):
 
     # Compose message
     msg = MIMEMultipart()
-    msg["Subject"] = "Фоксфорд. Еженедельный отчёт"
+    msg["Subject"] = MESSAGE_SUBJECT
     msg["From"] = CURATOR_EMAIL
     msg["To"] = email
 
@@ -83,9 +86,8 @@ if __name__ == "__main__":
             child['name']
         )
 
-        download_file(START_DATE, END_DATE, child['user_id'], file_name)
-
-        hide_columns(file_name)
+        if download_file(START_DATE, END_DATE, child['user_id'], file_name):
+            hide_columns(file_name)
 
         if SEND_TO_PARENTS:
             send_email(file_name, child['parent_email'])
